@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+.env*
+!.env.example
+*.log
+playwright-report/
+test-results/
+docs/evidence/artifact.json
+docs/evidence/interface.json

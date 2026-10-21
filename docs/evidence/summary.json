@@ -1,0 +1,338 @@
+{
+  "artifact": {
+    "evidence_id": "ev_640390a4af5cbccd30fa44963d68517f850551f48b4d62c77d6ef80eb2132a97",
+    "subject": {
+      "name": "dazzcam.zip",
+      "digest": {
+        "sha256": "a0551ef30fff9a75e0824849997f38312d9d6ab57abcd1837f483af141cd583f"
+      },
+      "local_path": "/workspace/reference/dazzcam.zip",
+      "format": "zip",
+      "architecture": null
+    },
+    "provider": {
+      "id": "rea-artifact-graph",
+      "name": "REA safe artifact graph provider",
+      "version": "1"
+    },
+    "operation": "inspect_artifact",
+    "parameters": {
+      "integrity_policy": "fail"
+    },
+    "limitations": [
+      "Inspection derives bounded static hypotheses and next probes; it does not execute the artifact or claim format-specific semantics.",
+      "ZIP inventory lists central-directory entries only. Non-entry bytes, including an APK Signing Block before the central directory or a ZIP comment after it, are not occurrences."
+    ]
+  },
+  "interface": {
+    "evidence_id": "ev_a219a10f20e2a2805f97c6ad8fb9ea3bbf66eca4ca38ee2eea5a1148fcd356a0",
+    "subject": {
+      "name": "DazzCamera",
+      "digest": {
+        "sha256": "1f5a72b8d33634503badd3213e61f880a83bc899884845c7b8e900367a57ca6a"
+      },
+      "local_path": "/workspace/reference/extracted/Payload/DazzCamera.app/DazzCamera",
+      "format": "mach-o",
+      "architecture": "arm64"
+    },
+    "provider": {
+      "id": "rea-artifact-graph",
+      "name": "REA safe artifact graph provider",
+      "version": "1"
+    },
+    "operation": "decode_interface_builder",
+    "parameters": {
+      "max_documents": 64,
+      "max_objects": 20000,
+      "max_connections": 40000
+    },
+    "limitations": [
+      "The graph reflects recognized Interface Builder archive fields and connections; omitted private or unrecognized archive fields remain unknown.",
+      "A target-action selector is an Interface Builder observation and does not prove that the binary contains a matching implementation.",
+      "Decoded constraints, runtime visibility, dynamic UI creation, and pixel geometry are not inferred from these archives.",
+      "Compiled Interface Builder archives are private serialized object graphs. The decoder reports only recognized keyed-archive objects and connections; unrecognized object classes and fields remain unknown."
+    ],
+    "documents": [
+      {
+        "relative_path": "Base.lproj/Album.storyboardc/1gC-w2-TzP-view-hKO-ro-VDD.nib",
+        "archive_sha256": "3a82e07523f93810f987763b4ad948f7715c984a0a792824e38f05136708920f",
+        "document_kind": "storyboard_scene",
+        "object_count": 28,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/Album.storyboardc/album_gallery.nib",
+        "archive_sha256": "1812f42c075b77614cf3d8683b67fdd3d80ff78c89724c2920afb63886e3fda9",
+        "document_kind": "storyboard_scene",
+        "object_count": 8,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/LaunchScreen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib",
+        "archive_sha256": "03b7116e93f04f572e6ea112a8060e4325b9980d6c378a002711e8561d397e51",
+        "document_kind": "storyboard_scene",
+        "object_count": 9,
+        "connection_count": 1,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/LaunchScreen.storyboardc/UIViewController-01J-lp-oVM.nib",
+        "archive_sha256": "54f3637f671feba5f19e82ec4f4a7fb448bb3cfc0fb180f089aa571fc8f053e2",
+        "document_kind": "storyboard_scene",
+        "object_count": 4,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib",
+        "archive_sha256": "c783a38c95ab9d5372fe4c18bf5a56eaa950d6909e77ce2929fa75c1ffd56253",
+        "document_kind": "storyboard_scene",
+        "object_count": 44,
+        "connection_count": 7,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/Main.storyboardc/MainImportController.nib",
+        "archive_sha256": "8db45493fc5d6f6d7aa9b4a4f539953ee9852dbadf6e5819dd0e1f76fb24696f",
+        "document_kind": "storyboard_scene",
+        "object_count": 33,
+        "connection_count": 7,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/Main.storyboardc/MainViewController.nib",
+        "archive_sha256": "d2aaa747b4af09474825faabf546d50e82cffe4c1b6369debe6da31db3b498be",
+        "document_kind": "storyboard_scene",
+        "object_count": 5,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Base.lproj/Main.storyboardc/jr0-BE-TfU-view-P32-Rr-z2S.nib",
+        "archive_sha256": "d9ec7ff09e738c89312635e67433cf968b2782b71d64f75e63bdfad89c0f76b2",
+        "document_kind": "storyboard_scene",
+        "object_count": 76,
+        "connection_count": 13,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "BuyPro.storyboardc/DlO-b1-D38-view-I5z-R3-Gaz.nib",
+        "archive_sha256": "8429064ec005ec69f267d8dc74a5055fd792a275544a5f22725f51eb07317fb0",
+        "document_kind": "storyboard_scene",
+        "object_count": 103,
+        "connection_count": 20,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "BuyPro.storyboardc/dc_pro_controller.nib",
+        "archive_sha256": "d177b35ad50d2e90ac30c757860e24ba6163c9dd35eced05f943f5e5a8ea1c8c",
+        "document_kind": "storyboard_scene",
+        "object_count": 72,
+        "connection_count": 14,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "BuyPro.storyboardc/dc_promotion_controller.nib",
+        "archive_sha256": "dab462ea13c8e481f49253befc0a8225cd0308ea326ec82e89683fc60ea96f66",
+        "document_kind": "storyboard_scene",
+        "object_count": 4,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "BuyPro.storyboardc/hfi-Ue-VVO-view-Wp6-YL-2O7.nib",
+        "archive_sha256": "6c6f6eeedcaf1520e7dc54cc2dd5b5f18e9283a7af9dba6c50861a91a7d184ca",
+        "document_kind": "storyboard_scene",
+        "object_count": 57,
+        "connection_count": 11,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Collage.storyboardc/CollagePreviewController.nib",
+        "archive_sha256": "816db82c6a71aa4af86c763290730cc9abdc9e58ee2c950751892d24ed33570f",
+        "document_kind": "storyboard_scene",
+        "object_count": 4,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Collage.storyboardc/CollageViewController.nib",
+        "archive_sha256": "38d2cbf01ec90bcc0ab480e93ba48d44f648beb5571d94c7072413f4d2651c53",
+        "document_kind": "storyboard_scene",
+        "object_count": 32,
+        "connection_count": 7,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Collage.storyboardc/D5X-e7-lSi-view-oEa-1B-ud6.nib",
+        "archive_sha256": "486d8bc2abbe900de7b0d0a1f2d61e454454d0865a677ecc779519b60a2ca470",
+        "document_kind": "storyboard_scene",
+        "object_count": 46,
+        "connection_count": 8,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Collage.storyboardc/Sgj-Si-1Zc-view-k2X-Uy-bAf.nib",
+        "archive_sha256": "af2016f762564d7db93b45ded6727ea6873a9427d4fa098de04c614afba06f56",
+        "document_kind": "storyboard_scene",
+        "object_count": 74,
+        "connection_count": 12,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "ControlsView.nib",
+        "archive_sha256": "d04b2aa5fef1fcafdd9fe8be91f5a5b6447675b31c241c52afa824bed8bab743",
+        "document_kind": "nib",
+        "object_count": 41,
+        "connection_count": 6,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Darkroom.storyboardc/9mp-iG-f99-view-oNK-j9-1Zc.nib",
+        "archive_sha256": "d2c377e3f8c8476dcb29db7a441b6c200cfb684c4e461840db409b8b3bc04651",
+        "document_kind": "storyboard_scene",
+        "object_count": 70,
+        "connection_count": 9,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Darkroom.storyboardc/Cjl-CS-PZf-view-Zt9-tP-ji6.nib",
+        "archive_sha256": "513be39314c70149ee8abb67389d2c5b19d1165ec928feac7d66d8ad58a9daf8",
+        "document_kind": "storyboard_scene",
+        "object_count": 54,
+        "connection_count": 8,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Darkroom.storyboardc/DarkroomController.nib",
+        "archive_sha256": "ea09ee67536b3ffe889c86449343d9ca9b51e0c28cbaced12b37e4238f0db6a6",
+        "document_kind": "storyboard_scene",
+        "object_count": 4,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Darkroom.storyboardc/Y6W-OH-hqX-view-5EZ-qb-Rvc.nib",
+        "archive_sha256": "b4fb14a7c5afeb65e7fe8d4a12eb31cda10af4be65608856a7e40c94c8dbfbce",
+        "document_kind": "storyboard_scene",
+        "object_count": 43,
+        "connection_count": 8,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Darkroom.storyboardc/darkroom_info.nib",
+        "archive_sha256": "0a37d02d1e7a4c95d66758faafdb03993acae736be23203ce2ba65ee1e64f46d",
+        "document_kind": "storyboard_scene",
+        "object_count": 4,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "Darkroom.storyboardc/darkroom_pro.nib",
+        "archive_sha256": "f2bbbdbd23e0ce1d8a4d847d43215790ac048be6241ec51cdb0d2a0c8e23f85f",
+        "document_kind": "storyboard_scene",
+        "object_count": 4,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "DazzProCard.nib",
+        "archive_sha256": "79fd56ca1ed90061f84d1d859153b173bd02904b635f74a0f0760646e2b53008",
+        "document_kind": "nib",
+        "object_count": 35,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "FisheyeModeOptionView.nib",
+        "archive_sha256": "2d6411492ed64d85e07e739cb2bd4f83f3b16a74a810c178718894c4674d0f36",
+        "document_kind": "nib",
+        "object_count": 26,
+        "connection_count": 6,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "FocusView.nib",
+        "archive_sha256": "a53151f1678198bcd5ec0f0f698d76f076cd04261b60ca7324bdd226dd621eae",
+        "document_kind": "nib",
+        "object_count": 34,
+        "connection_count": 9,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "PrivacyView.nib",
+        "archive_sha256": "2005ffe537023d3d1b1b54b7d6acd681097b821f3226b7ff83ff2215da9c01ea",
+        "document_kind": "nib",
+        "object_count": 67,
+        "connection_count": 7,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "SubmitWorks.nib",
+        "archive_sha256": "5a2e9e26d4afa318c699ebe2358f1f72dbfada437a3b84a75eba14cf9c8030e9",
+        "document_kind": "nib",
+        "object_count": 50,
+        "connection_count": 8,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "UIBuyItemTableViewCell.nib",
+        "archive_sha256": "65dd178074b3583fd8b7c97fc35fedcace2dc5f4b0019dbb826e2a4176f73c08",
+        "document_kind": "nib",
+        "object_count": 32,
+        "connection_count": 4,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "UIBuyProTableViewCell.nib",
+        "archive_sha256": "77068977c726754fec867527b6e0d031886b8e16617d3e69f7052c5362896ea9",
+        "document_kind": "nib",
+        "object_count": 36,
+        "connection_count": 5,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "VisualEffectButtonControl.nib",
+        "archive_sha256": "c06b1a4e6ecd2e67d29d3fd216487d54d80ee760a502095e21501a9b232fb1c7",
+        "document_kind": "nib",
+        "object_count": 14,
+        "connection_count": 3,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "WhatsNewFilmView.nib",
+        "archive_sha256": "db4b412119aed68a95bc3b7a0589755cf0840f1b6b5b9556af2ac8c764e23d6b",
+        "document_kind": "nib",
+        "object_count": 52,
+        "connection_count": 6,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "WhatsNewTitleCell3_B.nib",
+        "archive_sha256": "55ca9ce31813d7b66827da3a3cf5e796d6dc8fdaa64a1c6d7c11b687bf0944e5",
+        "document_kind": "nib",
+        "object_count": 42,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "WhatsNewUpdateCell.nib",
+        "archive_sha256": "24e9afa1a3987036c4531a4ef4a897fc6858059fbc82a56e0c7ef95cc9d4b456",
+        "document_kind": "nib",
+        "object_count": 32,
+        "connection_count": 2,
+        "hierarchy_complete": false
+      },
+      {
+        "relative_path": "WhatsNewVideoPage.nib",
+        "archive_sha256": "cb29769b6f9765c46330730df487131e057d77084296138581de696c603e8a75",
+        "document_kind": "nib",
+        "object_count": 8,
+        "connection_count": 3,
+        "hierarchy_complete": false
+      }
+    ]
+  }
+}
