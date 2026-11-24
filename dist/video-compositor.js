@@ -67,7 +67,7 @@ export class VideoCompositor {
   frame(time, edge = 720, running = false) {
     if (!this.project) return;
     const {ratio,clips,overlays,audio} = this.project;
-    const [w,h] = mediaSize(ratio,edge);
+    const [w,h] = mediaSize(ratio,edge).map(side => Math.round(side/2)*2);
     if (this.canvas.width !== w || this.canvas.height !== h) {
       this.canvas.width = w;
       this.canvas.height = h;
@@ -112,7 +112,7 @@ export class VideoCompositor {
     this.frame(time);
     const at = locateClip(this.project?.clips || [],time);
     const media = this.media.get(at?.clip.mediaId)?.element;
-    if (media?.tagName === 'VIDEO' && media.readyState < 2 || media?.seeking) {
+    if (media?.tagName === 'VIDEO' && (media.readyState < 2 || media.seeking)) {
       await new Promise(resolve => {
         const controller = new AbortController();
         const done = () => { clearTimeout(timer); controller.abort(); resolve(); };
@@ -175,6 +175,9 @@ export class VideoCompositor {
     this.audioGraph();
     const previousMonitor = this.monitor.gain.value;
     this.monitor.gain.value = 0;
+    const [w,h] = this.project.ratio.split(':').map(Number);
+    const edge = Math.min(1920,1080*Math.max(w,h)/Math.min(w,h));
+    this.frame(0,edge);
     const stream = this.canvas.captureStream(30);
     const audioTrack = this.output.stream.getAudioTracks()[0];
     if (audioTrack) stream.addTrack(audioTrack);
@@ -190,7 +193,7 @@ export class VideoCompositor {
     });
     recorded.catch(() => {});
     try {
-      const complete = await this.run(0,1080,notify,() => recorder.start(500));
+      const complete = await this.run(0,edge,notify,() => recorder.start(500));
       if (!complete && recorder.state === 'inactive') return null;
       if (recorder.state !== 'inactive') recorder.stop();
       const blob = await recorded;
