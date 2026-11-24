@@ -2,6 +2,7 @@ import {cameras, defaults, render, blobFromCanvas} from './renderer.js';
 import {allMedia, saveMedia, removeMedia, clearMedia} from './storage.js';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let settings={...defaults};try{settings={...defaults,...JSON.parse(localStorage.getItem('dazz-settings')||'{}')};}catch{}
+const demoPath = 'assets/studio/335.jpg';
 let source=null,stream=null,sourceURL=null,sourceKind='demo',front=false,mode='photo',recorder=null,recordInterval=null,recordStream=null,recordStart=0,overlay=null,loop=null,busy=false,library=[],selectedMedia=null,galleryFilter='all',mediaURLs=[],collage=[];
 const preview=$('#preview'),video=$('#source-video');
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timeout);toast.timeout=setTimeout(()=>$('#toast').classList.remove('show'),4500);}
@@ -33,9 +34,9 @@ function imageFrom(blob){return new Promise((resolve,reject)=>{const img=new Ima
 let originalBlob=null,halfFrame=null;
 async function importFile(file){if(!file)return;if(recorder?.state==='recording')return toast('Encerre a gravação antes de importar.');try{if(file.type.startsWith('video/')){stopSource();originalBlob=file;sourceURL=URL.createObjectURL(file);video.src=sourceURL;video.loop=true;await video.play();source=video;sourceKind='video';setMode('video');animate();toast('Vídeo carregado. Toque em gravar para exportar com os efeitos.');}else{const img=await imageFrom(file);stopSource();originalBlob=file;source=img;sourceKind='image';setMode('photo');repaint();}$('#welcome').hidden=true;$('#source-label').textContent='MATERIAL IMPORTADO';$('#camera-status').textContent='PRONTO PARA REVELAR';}catch(e){fail(e);}}
 $('#file-input').onchange=e=>{importFile(e.target.files[0]);e.target.value='';};for(const id of ['import-top','import-bottom'])$('#'+id).onclick=()=>$('#file-input').click();
-async function demo(){const img=new Image();img.src='assets/demo.svg';await img.decode();stopSource();source=img;sourceKind='demo';originalBlob=await (await fetch('assets/demo.svg')).blob();repaint();}
+async function demo(){const img=new Image();img.src=demoPath;await img.decode();stopSource();source=img;sourceKind='demo';originalBlob=await (await fetch(demoPath)).blob();repaint();}
 $('#demo').onclick=async()=>{await demo();$('#welcome').hidden=true;toast('Imagem de demonstração. Ajuste os efeitos e revele.');};
-function setMode(value){if(recorder?.state==='recording')return toast('Encerre a gravação para mudar o modo.');mode=value;overlay=null;halfFrame=null;$$('[data-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.mode===value));$('#shutter-label').textContent=value==='video'?'GRAVAR':value==='double'?'1ª EXPOSIÇÃO':'CAPTURAR';repaint();}
+function setMode(value){if(recorder?.state==='recording')return toast('Encerre a gravação para mudar o modo.');mode=value;overlay=null;halfFrame=null;$$('[data-mode]').forEach(b=>{b.classList.toggle('selected',b.dataset.mode===value);b.setAttribute('aria-pressed',b.dataset.mode===value);});$('#shutter-label').textContent=value==='video'?'GRAVAR':value==='double'?'1ª EXPOSIÇÃO':'CAPTURAR';repaint();}
 $$('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 async function countdown(){if(settings.timer)for(let n=settings.timer;n>0;n--){$('#countdown').hidden=false;$('#countdown').textContent=n;await new Promise(r=>setTimeout(r,1000));}$('#countdown').hidden=true;}
 function clickSound(){if(!settings.sound)return;try{const ctx=new (window.AudioContext||window.webkitAudioContext)(),osc=ctx.createOscillator(),g=ctx.createGain();osc.connect(g);g.connect(ctx.destination);osc.frequency.value=220;g.gain.setValueAtTime(.04,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.06);osc.start();osc.stop(ctx.currentTime+.07);osc.onended=()=>ctx.close();}catch{}}

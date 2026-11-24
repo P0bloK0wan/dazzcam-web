@@ -1,7 +1,7 @@
 import {download, studio} from './app.js';
 import {loadProject, saveProject} from './storage.js';
 import {locateClip, parseSrt, splitClip, timelineDuration} from './editor-model.js';
-import {assetCatalog, bindFields, element, fileInput, importMedia, prepareLut, resolveMedia} from './editor-media.js';
+import {assetCatalog, bindFields, element, fileInput, importDemoPhoto, importMedia, prepareLut, resolveMedia} from './editor-media.js';
 import {VideoCompositor} from './video-compositor.js';
 
 const initial = () => ({id:'video',version:1,ratio:'16:9',clips:[],audio:[],overlays:[]});
@@ -12,7 +12,7 @@ export function createVideoEditor(root, chooseAlbum, chooseCatalog) {
   root.innerHTML = `
     <div class="editor-heading"><h1>Montagem de vídeo</h1><div class="editor-tools">
       <label class="editor-file">Importar mídia<input data-import type="file" accept="video/*,image/*,audio/*" multiple></label>
-      <button data-album>Do álbum</button><button data-catalog>Do catálogo</button>
+      <button data-demo>Testar com amostra</button><button data-album>Do álbum</button><button data-catalog>Do catálogo</button>
       <button data-export class="primary">Exportar vídeo</button><button data-stop hidden>Cancelar</button>
     </div></div>
     <div class="editor-layout"><div class="editor-stage">
@@ -158,6 +158,13 @@ export function createVideoEditor(root, chooseAlbum, chooseCatalog) {
   fileInput($('[data-import]'),async files => {
     for (const file of files) await add(await importMedia(file));
   },report);
+  $('[data-demo]').onclick = async event => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    try { await add(await importDemoPhoto()); }
+    catch (error) { report(error.message); }
+    finally { button.disabled = false; }
+  };
   $('[data-album]').onclick = () => chooseAlbum(['photo','video','audio'],add);
   $('[data-catalog]').onclick = () => chooseCatalog(['image','video','audio'],add);
   $('[data-ratio]').onchange = event => commit(() => { project.ratio = event.target.value; });

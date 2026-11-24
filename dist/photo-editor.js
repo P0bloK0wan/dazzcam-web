@@ -2,7 +2,7 @@ import {blobFromCanvas} from './renderer.js';
 import {download, studio, zipMedia} from './app.js';
 import {loadProject, saveProject} from './storage.js';
 import {slideName} from './editor-model.js';
-import {assetCatalog, bindFields, element, fileInput, importMedia, mediaSize, paintMedia, paintText, prepareLut, resolveMedia} from './editor-media.js';
+import {assetCatalog, bindFields, element, fileInput, importDemoPhoto, importMedia, mediaSize, paintMedia, paintText, prepareLut, resolveMedia} from './editor-media.js';
 
 const initial = () => ({id:'photo', version:1, slides:1, ratio:'4:5', background:'#252a29', layers:[]});
 const layerDefaults = {x:0,y:0,width:100,height:100,rotation:0,zoom:1,exposure:0,contrast:0,saturation:0,opacity:100};
@@ -12,7 +12,7 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   root.innerHTML = `
     <div class="editor-heading"><h1>Foto e carrossel</h1><div class="editor-tools">
       <label class="editor-file">Adicionar foto<input type="file" accept="image/*" multiple data-import></label>
-      <button data-album>Do álbum</button><button data-catalog>Do catálogo</button><button data-layout disabled>Modelos</button><button data-undo>Desfazer</button><button data-redo>Refazer</button>
+      <button data-demo>Testar com amostra</button><button data-album>Do álbum</button><button data-catalog>Do catálogo</button><button data-layout disabled>Modelos</button><button data-undo>Desfazer</button><button data-redo>Refazer</button>
       <select aria-label="Formato de imagem" data-format><option value="png">PNG</option><option value="jpg">JPEG</option></select>
       <button class="primary" data-export>Exportar</button>
     </div></div>
@@ -243,6 +243,13 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   fileInput($('[data-import]'),async files => {
     for (const file of files) await add(await importMedia(file));
   },report);
+  $('[data-demo]').onclick = async event => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    try { await add(await importDemoPhoto()); }
+    catch (error) { report(error.message); }
+    finally { button.disabled = false; }
+  };
   $('[data-album]').onclick = () => chooseAlbum(['photo'],add);
   $('[data-catalog]').onclick = () => chooseCatalog(['image'],add);
   for (const input of root.querySelectorAll('[data-project]')) {

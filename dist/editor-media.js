@@ -4,6 +4,12 @@ import {parseCube, applyCube} from './editor-model.js';
 const cache = new Map();
 const luts = new Map();
 
+export async function importDemoPhoto() {
+  const response = await fetch('./assets/studio/335.jpg');
+  if (!response.ok) throw new Error('Foto de demonstração indisponível.');
+  return importMedia(new File([await response.blob()],'335.jpg',{type:'image/jpeg'}));
+}
+
 export async function importMedia(file) {
   const type = file.type.startsWith('video/') ? 'video' : file.type.startsWith('audio/') ? 'audio' :
     file.type.startsWith('image/') ? 'photo' : null;

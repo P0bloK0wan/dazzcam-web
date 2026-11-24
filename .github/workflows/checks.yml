@@ -12,3 +12,13 @@ jobs:
           node-version: '24'
       - run: npm run check
       - run: npm test
+      - run: npm install --no-save --no-package-lock playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Test studio in Chromium
+        run: |
+          npm start > /tmp/dazz-studio.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:5173/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          node tests/studio-browser.cjs

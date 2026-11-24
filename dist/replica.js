@@ -62,3 +62,38 @@ $('#lens-leak').onclick=e=>{const on=studio.settings.leak===0;studio.update({lea
 window.addEventListener('camera-changed',()=>{nativePicker.innerHTML=sprite(studio.settings.camera);syncBadges();});
 if(!localStorage.getItem('dazz-replica-initialized')){studio.update({camera:'grd',ratio:'2:3',zoom:42/26,focal:42,grid:true});localStorage.setItem('dazz-replica-initialized','1');}
 syncBadges();nativePicker.innerHTML=sprite(studio.settings.camera);$('#focus-frame').classList.toggle('no-grid',!studio.settings.grid);
+
+const deskSettings = document.querySelector('#desk-adjustments');
+const deskInputs = [...document.querySelectorAll('#sliders input')].map(original => {
+  const label = original.closest('label').cloneNode(true);
+  const input = label.querySelector('input');
+  input.id = 'desk-'+original.id;
+  label.htmlFor = input.id;
+  const output = label.querySelector('output');
+  output.removeAttribute('id');
+  input.addEventListener('input', () => {
+    original.value = input.value;
+    original.dispatchEvent(new Event('input'));
+    output.textContent = labelValue(original);
+  });
+  deskSettings.append(label);
+  return {original,input,output};
+});
+function labelValue(input) { return document.querySelector('#'+input.id+'-value').textContent; }
+function refreshDesk() {
+  for (const {original,input,output} of deskInputs) {
+    input.value = original.value;
+    output.textContent = labelValue(original);
+  }
+  $('[data-look-name]').textContent = $('#selected-name').textContent;
+}
+const deskObserver = new MutationObserver(refreshDesk);
+for (const {original} of deskInputs) {
+  deskObserver.observe(document.querySelector('#'+original.id+'-value'),{childList:true,subtree:true});
+}
+deskObserver.observe($('#selected-name'),{childList:true,subtree:true});
+for (const [id,target] of [['desk-start','start-camera'],['desk-import','import-top'],['desk-demo','demo'],
+    ['desk-picker','native-picker'],['desk-reset','reset']]) {
+  $('#'+id).addEventListener('click', () => $('#'+target).click());
+}
+refreshDesk();
