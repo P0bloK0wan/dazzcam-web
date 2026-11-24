@@ -12,7 +12,7 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   root.innerHTML = `
     <div class="editor-heading"><h1>Foto e carrossel</h1><div class="editor-tools">
       <label class="editor-file">Adicionar foto<input type="file" accept="image/*" multiple data-import></label>
-      <button data-album>Do álbum</button><button data-catalog>Do catálogo</button><button data-undo>Desfazer</button><button data-redo>Refazer</button>
+      <button data-album>Do álbum</button><button data-catalog>Do catálogo</button><button data-layout disabled>Modelos</button><button data-undo>Desfazer</button><button data-redo>Refazer</button>
       <select aria-label="Formato de imagem" data-format><option value="png">PNG</option><option value="jpg">JPEG</option></select>
       <button class="primary" data-export>Exportar</button>
     </div></div>
@@ -60,6 +60,21 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   const undo = [], redo = [];
   let project = initial(), selected = null, slide = 0, generation = 0;
   let mediaAssets = [];
+  let layouts = [];
+  fetch('./assets/studio/layouts.json').then(response => response.ok ? response.json() : [])
+    .then(items => {
+      layouts = items;
+      for (const ratio of new Set(items.map(item => item.ratio))) {
+        const select = $('[data-project="ratio"]');
+        if (![...select.options].some(option => option.value === ratio)) {
+          const [w,h] = ratio.split(':');
+          select.append(element('option',{value:ratio},w+' × '+h));
+        }
+      }
+      $('[data-layout]').disabled = !layouts.length;
+      refresh();
+    }).catch(() => {});
+
   const ready = loadProject('photo').then(saved => {
     if (saved?.version === 1) project = saved;
     selected = project.layers[0]?.id;
@@ -111,7 +126,7 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
     }
     return overlays.get(file);
   }
-  async function draw(target, index, edge, snapshot) {
+  async function draw(target, index, edge, snapshot, showSlots = false) {
     const [w,h] = mediaSize(snapshot.ratio,edge);
     const prepared = await Promise.all(snapshot.layers.map(async layer => {
       const media = layer.mediaId ? await resolveMedia(layer.mediaId).catch(() => null) : null;
@@ -130,7 +145,14 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
       if (x+lw <= 0 || x >= w) continue;
       ctx.save();
       ctx.globalAlpha = (layer.opacity ?? 100)/100;
-      if (layer.kind === 'text') {
+      if (layer.kind === 'photo' && !layer.mediaId && showSlots) {
+        ctx.fillStyle = '#84929538';
+        ctx.fillRect(x,y,lw,lh);
+        ctx.strokeStyle = '#dbe0df';
+        ctx.setLineDash([7,5]);
+        ctx.strokeRect(x+2,y+2,Math.max(0,lw-4),Math.max(0,lh-4));
+        paintText(ctx,layer.name,x+lw/2,y+lh/2,Math.min(20,lh*.24),lw*.9);
+      } else if (layer.kind === 'text') {
         paintText(ctx,layer.text,x+lw/2,y+lh/2,h*layer.size/100,lw,layer.color);
       } else if (overlay) {
         const scale = Math.min(lw/overlay.naturalWidth,lh/overlay.naturalHeight);
@@ -157,7 +179,7 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
     const request = ++generation;
     const draft = document.createElement('canvas');
     try {
-      await draw(draft,slide,800,copy(project));
+      await draw(draft,slide,800,copy(project),true);
       if (request !== generation) return;
       canvas.width = draft.width;
       canvas.height = draft.height;
@@ -167,6 +189,10 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   function refresh() {
     slide = Math.min(slide,project.slides-1);
     if (!active()) selected = project.layers.at(-1)?.id;
+    const ratios = $('[data-project="ratio"]');
+    if (![...ratios.options].some(option => option.value === project.ratio)) {
+      ratios.append(element('option',{value:project.ratio},project.ratio));
+    }
     for (const input of root.querySelectorAll('[data-project]')) input.value = project[input.dataset.project];
     const slideStrip = $('[data-slides]');
     slideStrip.replaceChildren();
@@ -201,9 +227,17 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
     await ready;
     await resolveMedia(item.id);
     commit(() => {
-      const id = crypto.randomUUID();
-      project.layers.push({...layerDefaults,id,kind:'photo',mediaId:item.id,name:item.name || 'Foto do álbum',x:slide*100});
-      selected = id;
+      const empty = layer => layer?.kind === 'photo' && !layer.mediaId;
+      const slot = empty(active()) ? active() : project.layers.find(empty);
+      if (slot) {
+        Object.assign(slot,{mediaId:item.id,name:item.name || 'Foto do álbum'});
+        selected = slot.id;
+        slide = Math.max(0,Math.floor(slot.x/100));
+      } else {
+        const id = crypto.randomUUID();
+        project.layers.push({...layerDefaults,id,kind:'photo',mediaId:item.id,name:item.name || 'Foto do álbum',x:slide*100});
+        selected = id;
+      }
     });
   }
   fileInput($('[data-import]'),async files => {
@@ -233,6 +267,42 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   const picker = element('dialog');
   picker.className = 'editor-asset-picker';
   root.append(picker);
+  $('[data-layout]').onclick = () => {
+    picker.replaceChildren(element('h2',{},'Modelos de carrossel'));
+    const close = element('button',{},'Fechar');
+    close.onclick = () => picker.close();
+    picker.append(close);
+    const list = element('div',{className:'editor-asset-list'});
+    for (const layout of layouts) {
+      const label = `Modelo ${layout.id} · ${layout.slides} ${layout.slides === 1 ? 'slide' : 'slides'} · ${layout.slots.length} fotos`;
+      const button = element('button',{},label);
+      button.onclick = () => {
+        commit(() => {
+          const photos = project.layers.filter(layer => layer.kind === 'photo' && layer.mediaId);
+          const other = project.layers.filter(layer => layer.kind !== 'photo');
+          const mapped = layout.slots.map((bounds,index) => ({
+            ...layerDefaults, id:crypto.randomUUID(),kind:'photo',name:'Foto '+(index+1),...photos[index],...bounds
+          }));
+          const extra = photos.slice(mapped.length);
+          extra.forEach((photo,index) => {
+            photo.x = (layout.slides+index)*100;
+            photo.y = 0; photo.width = 100; photo.height = 100;
+          });
+          project.layers = [...mapped,...extra,...other];
+          project.slides = Math.min(20,layout.slides+extra.length);
+          project.ratio = layout.ratio;
+          project.background = layout.background;
+          slide = 0;
+          selected = mapped.find(layer => !layer.mediaId)?.id || mapped[0]?.id;
+        });
+        report('Modelo aplicado. Adicione fotos para preencher os espaços.');
+        picker.close();
+      };
+      list.append(button);
+    }
+    picker.append(list);
+    picker.showModal();
+  };
   $('[data-overlay]').onclick = () => {
     picker.replaceChildren(element('h2',{},'Adesivos'));
     const close = element('button',{},'Fechar');
@@ -273,7 +343,7 @@ export function createPhotoEditor(root, chooseAlbum, chooseCatalog) {
   };
   fileInput($('[data-lut]'),async ([file]) => setLut(await file.text(),''),report);
   $('[data-export]').onclick = async event => {
-    if (!project.layers.length) return report('Adicione uma camada para exportar.');
+    if (!project.layers.some(layer => layer.kind !== 'photo' || layer.mediaId)) return report('Adicione uma foto ou outra camada para exportar.');
     const button = event.currentTarget;
     button.disabled = true;
     try {
