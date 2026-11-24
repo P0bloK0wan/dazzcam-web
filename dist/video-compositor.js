@@ -72,7 +72,7 @@ export class VideoCompositor {
       this.canvas.width = w;
       this.canvas.height = h;
     }
-    const ctx = this.canvas.getContext('2d');
+    const ctx = this.canvas.getContext('2d',{willReadFrequently:true});
     ctx.fillStyle = '#0c0f0f';
     ctx.fillRect(0,0,w,h);
     const at = locateClip(clips,time);
@@ -154,16 +154,16 @@ export class VideoCompositor {
           if (current >= this.duration) finish(true);
           else request = requestAnimationFrame(tick);
         } catch (error) {
-          finish(false);
           reject(error);
+          finish(false);
         }
       };
       try {
         onBegin();
         tick(performance.now());
       } catch (error) {
-        this.stop();
         reject(error);
+        this.stop();
       }
     });
   }
@@ -175,34 +175,46 @@ export class VideoCompositor {
     this.audioGraph();
     const previousMonitor = this.monitor.gain.value;
     this.monitor.gain.value = 0;
-    const [w,h] = this.project.ratio.split(':').map(Number);
-    const edge = Math.min(1920,1080*Math.max(w,h)/Math.min(w,h));
-    this.frame(0,edge);
-    const stream = this.canvas.captureStream(30);
-    const audioTrack = this.output.stream.getAudioTracks()[0];
-    if (audioTrack) stream.addTrack(audioTrack);
-    const mimeType = [
-      'video/mp4;codecs=avc1.42001e,mp4a.40.2', 'video/webm;codecs=vp8,opus', 'video/webm','video/mp4'
-    ].find(type => MediaRecorder.isTypeSupported(type));
-    const recorder = new MediaRecorder(stream,mimeType ? {mimeType,videoBitsPerSecond:6000000} : {});
-    const chunks = [];
-    const recorded = new Promise((resolve,reject) => {
-      recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
-      recorder.onstop = () => resolve(new Blob(chunks,{type:recorder.mimeType}));
-      recorder.onerror = event => { this.stop(); reject(event.error || new Error('Falha na exportação.')); };
-    });
-    recorded.catch(() => {});
+    let stream, recorder;
     try {
-      const complete = await this.run(0,edge,notify,() => recorder.start(500));
+      const [w,h] = this.project.ratio.split(':').map(Number);
+      const edge = Math.min(1920,1080*Math.max(w,h)/Math.min(w,h));
+      this.frame(0,edge);
+      stream = this.canvas.captureStream(0);
+      const hasAudio = this.project.audio.length > 0 || this.project.clips.some(clip => this.media.get(clip.mediaId)?.item.type === 'video');
+      const audioTrack = this.output.stream.getAudioTracks()[0];
+      if (hasAudio && audioTrack) stream.addTrack(audioTrack);
+      const videoTrack = stream.getVideoTracks()[0];
+      // Connect inputs before recording so the audio track has started producing samples.
+      if (hasAudio) {
+        for (const {element, item} of this.media.values()) if (item.type !== 'photo') this.node(element);
+        await this.audio.resume();
+      }
+      const mimeType = [
+        'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4;codecs=avc1.42001e,mp4a.40.2', 'video/mp4'
+      ].find(type => MediaRecorder.isTypeSupported(type));
+      recorder = new MediaRecorder(stream,mimeType ? {mimeType,videoBitsPerSecond:6000000} : {});
+      const chunks = [];
+      const recorded = new Promise((resolve,reject) => {
+        recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+        recorder.onstop = () => resolve(new Blob(chunks,{type:recorder.mimeType}));
+        recorder.onerror = event => { this.stop(); reject(event.error || new Error('Falha na exportação.')); };
+      });
+      recorded.catch(() => {});
+      const complete = await this.run(0,edge,(current,total) => {
+        videoTrack?.requestFrame?.();
+        notify(current,total);
+      },() => recorder.start());
       if (!complete && recorder.state === 'inactive') return null;
+      if (complete) await new Promise(resolve => setTimeout(resolve,220));
       if (recorder.state !== 'inactive') recorder.stop();
       const blob = await recorded;
       if (!complete) return null;
       if (!blob.size) throw new Error('O navegador gerou um vídeo vazio.');
       return blob;
     } finally {
-      if (recorder.state !== 'inactive') recorder.stop();
-      stream.getVideoTracks().forEach(track => track.stop());
+      if (recorder && recorder.state !== 'inactive') recorder.stop();
+      stream?.getVideoTracks().forEach(track => track.stop());
       this.monitor.gain.value = previousMonitor;
     }
   }
