@@ -2,6 +2,10 @@
 
 Estúdio de fotografia vintage para navegador, desenvolvido a partir de uma investigação estática do pacote iOS Dazz Cam 2.17.7 com **REA 6.7.0**. Interface em português, sem servidor ou cadastro. A tela principal foi refeita usando os 329 quadros do vídeo de referência (394 × 854, 24 fps): fundo preto, visor vertical, recorte de 42 mm, fileiras de câmeras e painéis de exposição/temperatura/distância focal. Não é o aplicativo oficial nem uma recuperação do código-fonte original.
 
+## Fluxos do estúdio
+
+A navegação reúne câmera vintage, edição de foto e carrossel, montagem de vídeo e álbum. Os rascunhos ficam no navegador. Veja [os fluxos de edição, exportação e a análise REA do material do 2Shoot](docs/STUDIO.md).
+
 ## Executar
 
 Requisitos: Python 3 para servir; Node.js 22+ para as verificações.
