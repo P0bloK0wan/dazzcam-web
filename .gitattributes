@@ -1,0 +1,2 @@
+dist/assets/studio/*.cube -diff
+dist/assets/studio/catalog.json -diff
